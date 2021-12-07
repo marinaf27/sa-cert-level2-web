@@ -115,16 +115,31 @@ async function join() {
   localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
 
   if (currentStream == "camera") {
+   // var stream=document.getElementById("canid").captureStream(25);
     // Join a channel and create local tracks. Best practice is to use Promise.all and run them concurrently.
     [ options.uid, localTracks.videoTrack ] = await Promise.all([
       // Join the channel.
       client.join(options.appid, options.channel, options.token || null, options.uid || null),
       // Create tracks to the localcamera.
       AgoraRTC.createCameraVideoTrack()
+      
     ]);
 
-    // Publish the local video and audio tracks to the channel.
-    
+  } else if  (currentStream == "customsource") {
+    var stream=document.getElementById("myCanvas").captureStream(30);
+    var videoFromDiv = document.getElementById("sample-video");
+    try {
+      videoFromDiv.play();
+    } catch (e) {
+      console.log(error);
+    }
+    [options.uid, localTracks.videoTrack ] = await Promise.all([
+      // Join the channel.
+      client.join(options.appid, options.channel, options.token || null, options.uid || null),
+      // Create tracks to the customized video source.
+      AgoraRTC.createCustomVideoTrack({mediaStreamTrack:stream.getVideoTracks()[0]})
+      
+    ]);    
   } else {
   
       var videoFromDiv = document.getElementById("sample-video");
